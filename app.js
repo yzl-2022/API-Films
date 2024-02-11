@@ -56,6 +56,8 @@ app.get(['/','/films','/api/films'], async function(req, res){
         const ordre = req.query['ordre'] || 'asc'
         const limit = parseInt(req.query['limit']) || 20
 
+        console.log('tri = ',tri, ' ordre = ', ordre, ' limit = ', limit)
+
         const filmsRef = await db.collection('films').orderBy(tri,ordre).limit(limit).get() //orderBy('id') works only when id is stored as Integer(not String)
 
         if (filmsRef.empty) return res.redirect('/films/initialiser') //use `empty` for collection(), use `exists` for doc(id)
