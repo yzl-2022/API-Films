@@ -14,11 +14,26 @@ ___________________________________________________________________
 
 ### récupérer tous les films
 
-GET /api/films 
+GET /api/films -- afficher tous les films
 
 GET /api/films?tri=annee&ordre=asc
 
+GET /api/films?tri=annee&ordre=asc&limit=15 -- afficher 15 films ou moins
+
 GET /api/films?tri=titre&ordre=desc
+
+*paramètres possibles, dont l'ordre n'a pas d'importance*
+
+* tri
+    * titre
+    * description
+    * annee
+    * realisation
+    * id
+* order
+    * asc
+    * desc
+* limit -- un entier supérieur à 0
 
 ### ajouter un nouveau film
 
