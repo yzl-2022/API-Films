@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Création d’un service Web en REST sur Node.js connectée à une base de données infonuagique">
+    <title>API-Films</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/#films">Films</a></li>
+            <li><a href="/#utilisateurs">Utilisateurs</a></li>
+            <li><a href="/#inscription">Inscription</a></li>
+            <li><a href="/#connexion">Connexion</a></li>
+        </ul>
+    </nav>
+    <header><h1>API-Films</h1></header>
+    <!--utilisateur-->
+    <article id="utilisateurs">
+        <h2>Utilisateur</h2>
+        <p>un example d'utilisateur:</p>
+        <ul>
+            <li>nom d'utilisateur: 123@123.com</li>
+            <li>mot de passe: 123456789 (minLength:8, minLowercase:0, minNumbers:1, minUppercase:0, minSymbols:0)</li>
+        </ul>
+        <section id="connexion">
+            <form action="/utilisateurs/connexion" method="POST">
+                <h3>Se connecter</h3>
+                <input name="username" type="email" placeholder="username/email" required>
+                <input name="password" type="password" placeholder="password" required>
+                <input type="submit" value="Se connecter">
+                <input type="reset" value="recommencer">
+            </form>
+        </section>
+        <section id="inscription">
+            <form action="/utilisateurs/inscription" method="POST">
+                <h3>S'inscrire</h3>
+                <input name="username" type="email" placeholder="username/email" required>
+                <input name="password" type="password" placeholder="password" required>
+                <input type="submit" value="S'inscrire">
+                <input type="reset" value="recommencer">
+            </form>
+        </section>
+    </article>
+    <!--films-->
+    <article id="films">
+        <section>
+            <form class="one" action="/films" method="POST">
+                <h2>Ajouter un nouveau film</h2>
+                <label for="titre">Titre: <input name="titre" id="titre" type="text" placeholder="titre du film" required></label>
+                <label for="genres">Genres: 
+                    <select name="genres" id="genres" multiple>
+                        <option value="Action">Action</option>
+                        <option value="Animation">Animation</option>
+                        <option value="Aventure">Aventure</option>
+                        <option value="Comédie">Comédie</option>
+                        <option value="Crime">Crime</option>
+                        <option value="Drame">Drame</option>
+                        <option value="Famille">Famille</option>
+                        <option value="Fantaisie">Fantaisie</option>
+                        <option value="Horreur">Horreur</option>
+                        <option value="Musical">Musical</option>
+                        <option value="Mystère">Mystère</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Science-fiction">Science-fiction</option>
+                        <option value="Thriller">Thriller</option>
+                    </select>
+                </label>
+                <label for="description">Description: <textarea name="description" id="description" cols="30" rows="10">entrez la description du film</textarea></label>
+                <label for="annee">Année: <input type="number" name="annee" id="annee" required></label>
+                <label for="realisation">Réalisation: <input type="text" name="realisation" id="realisation"></label>
+                <label for="titreVignette">TitreVignette: <input type="text" name="titreVignette" id="titreVignette"></label>
+                <input type="submit" value="Ajouer un nouveau film">
+            </form>
+        </section>
+        <section>
+            <h2>List de Films</h2>
+            <ul>
+                {{#films}}
+                <li><a href="/films/{{id}}">film {{id}}</a></li>
+                {{/films}}
+            </ul>
+        </section>
+    </article>
+</body>
+<script src="js/scripts.js"></script>
+</html>

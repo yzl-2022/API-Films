@@ -1,0 +1,33 @@
+body {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+nav ul {
+  display: flex;
+  list-style-type: none;
+}
+nav ul li {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+#films{
+  display: flex;
+  justify-content: space-between;
+}
+
+form.one {
+  display: flex;
+  flex-flow: column;
+  max-width: 300px;
+  border: 1px #999 solid;
+  border-radius: 6px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+form.one label {
+  display: block;
+  margin: 8px;
+}
