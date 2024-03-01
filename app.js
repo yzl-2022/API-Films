@@ -36,22 +36,22 @@ app.get('/', function(req, res){
 //films
 
 //if there is no data inside collection `films`, implant local data into collection `films`
-app.get(['/films/initialiser','/api/films/initialiser'], async function(req, res){
-    try{
-        const donneesFilms = require(path.join(__dirname,'./data/filmsTest.js'))
+// app.get(['/films/initialiser','/api/films/initialiser'], async function(req, res){
+//     try{
+//         const donneesFilms = require(path.join(__dirname,'./data/filmsTest.js'))
 
-        donneesFilms.forEach(async (item, index)=>{ 
-            item.id = index + 1
-            await db.collection('films').doc(item.id.toString()).set(item)
-        })
+//         donneesFilms.forEach(async (item, index)=>{ 
+//             item.id = index + 1
+//             await db.collection('films').doc(item.id.toString()).set(item)
+//         })
 
-        res.redirect('/films')
+//         res.redirect('/films')
 
-    }catch(err){
-        console.log(err)
-        res.status(500).send(err)
-    }
-})
+//     }catch(err){
+//         console.log(err)
+//         res.status(500).send(err)
+//     }
+// })
 
 app.get(['/films','/api/films'], async function(req, res){
     try{
