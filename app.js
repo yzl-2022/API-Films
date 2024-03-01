@@ -131,8 +131,8 @@ app.post(['/','/films','/api/films'],
 
                 await db.collection('films').doc(id.toString()).set(newFilm)
 
-                //si renvoie true
-                res.statusCode = 200
+                //Le code http pour créer une ressource est 201
+                res.statusCode = 201
                 //res.json(newFilm)
                 res.render('message', { message: `Film « ${newFilm.titre} » est ajouté avec succès.`})
 
@@ -279,9 +279,9 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
                 const newUser = { username, password , "id":id }
                 await db.collection('user').doc(id.toString()).set(newUser)
 
-                //si renvoie true
+                //res.statusCode = 201
                 delete newUser.password    //effacer le mot de passe
-                res.statusCode = 200
+                res.statusCode = 201
                 //res.json(newUser)
                 res.render('message', { message: `Bonjour ${newUser.username}, votre compte est créé avec succès.`})
 
