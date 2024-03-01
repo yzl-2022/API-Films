@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,83 +8,47 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/#films">Films</a></li>
-            <li><a href="/#utilisateurs">Utilisateurs</a></li>
-            <li><a href="/#inscription">Inscription</a></li>
-            <li><a href="/#connexion">Connexion</a></li>
-        </ul>
-    </nav>
-    <header><h1>API-Films</h1></header>
-    <!--utilisateur-->
-    <article id="utilisateurs">
-        <h2>Utilisateur</h2>
-        <p>un example d'utilisateur:</p>
-        <ul>
-            <li>nom d'utilisateur: 123@123.com</li>
-            <li>mot de passe: 123456789 (minLength:8, minLowercase:0, minNumbers:1, minUppercase:0, minSymbols:0)</li>
-        </ul>
-        <section id="connexion">
-            <form action="/utilisateurs/connexion" method="POST">
-                <h3>Se connecter</h3>
-                <input name="username" type="email" placeholder="username/email" required>
-                <input name="password" type="password" placeholder="password" required>
-                <input type="submit" value="Se connecter">
-                <input type="reset" value="recommencer">
-            </form>
-        </section>
-        <section id="inscription">
-            <form action="/utilisateurs/inscription" method="POST">
-                <h3>S'inscrire</h3>
-                <input name="username" type="email" placeholder="username/email" required>
-                <input name="password" type="password" placeholder="password" required>
-                <input type="submit" value="S'inscrire">
-                <input type="reset" value="recommencer">
-            </form>
-        </section>
-    </article>
-    <!--films-->
-    <article id="films">
-        <section>
-            <form class="one" action="/films" method="POST">
-                <h2>Ajouter un nouveau film</h2>
-                <label for="titre">Titre: <input name="titre" id="titre" type="text" placeholder="titre du film" required></label>
-                <label for="genres">Genres: 
-                    <select name="genres" id="genres" multiple>
-                        <option value="Action">Action</option>
-                        <option value="Animation">Animation</option>
-                        <option value="Aventure">Aventure</option>
-                        <option value="Comédie">Comédie</option>
-                        <option value="Crime">Crime</option>
-                        <option value="Drame">Drame</option>
-                        <option value="Famille">Famille</option>
-                        <option value="Fantaisie">Fantaisie</option>
-                        <option value="Horreur">Horreur</option>
-                        <option value="Musical">Musical</option>
-                        <option value="Mystère">Mystère</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Science-fiction">Science-fiction</option>
-                        <option value="Thriller">Thriller</option>
-                    </select>
-                </label>
-                <label for="description">Description: <textarea name="description" id="description" cols="30" rows="10">entrez la description du film</textarea></label>
-                <label for="annee">Année: <input type="number" name="annee" id="annee" required></label>
-                <label for="realisation">Réalisation: <input type="text" name="realisation" id="realisation"></label>
-                <label for="titreVignette">TitreVignette: <input type="text" name="titreVignette" id="titreVignette"></label>
-                <input type="submit" value="Ajouer un nouveau film">
-            </form>
-        </section>
-        <section>
-            <h2>List de Films</h2>
-            <ul>
-                {{#films}}
-                <li><a href="/films/{{id}}">film {{id}}</a></li>
-                {{/films}}
-            </ul>
-        </section>
-    </article>
+    <h1 id="api-films">API Films</h1>
+    <h2 id="documentation">Documentation</h2>
+    <p>Cette API permet de créer un utilisateur et de se connecter, ainsi que gérer une liste de films: récupérer, ajouter, modifier et supprimer des films.</p>
+    <p><strong>lien ver Render</strong> <a href="https://film-j3by.onrender.com">https://film-j3by.onrender.com</a></p>
+    <p><strong>lien ver GitHub</strong> <a href="https://github.com/yzl-2022/API-Films.git">https://github.com/yzl-2022/API-Films.git</a></p>
+    <hr>
+    <h2 id="routes">Routes</h2>
+    <h3 id="r-cup-rer-tous-les-films">récupérer tous les films</h3>
+    <p>GET /api/films -- afficher tous les films</p>
+    <p>GET /api/films?tri=annee&amp;ordre=asc</p>
+    <p>GET /api/films?tri=annee&amp;ordre=asc&amp;limit=15 -- afficher 15 films ou moins</p>
+    <p>GET /api/films?tri=titre&amp;ordre=desc</p>
+    <p><em>paramètres possibles, dont l&#39;ordre n&#39;a pas d&#39;importance</em></p>
+    <ul>
+    <li>tri<ul>
+    <li>titre</li>
+    <li>description</li>
+    <li>annee</li>
+    <li>realisation</li>
+    <li>id</li>
+    </ul>
+    </li>
+    <li>order<ul>
+    <li>asc</li>
+    <li>desc</li>
+    </ul>
+    </li>
+    <li>limit -- un entier supérieur à 0</li>
+    </ul>
+    <h3 id="ajouter-un-nouveau-film">ajouter un nouveau film</h3>
+    <p>POST /api/films -- vous pouvez utiliser le formulaire sur cette page</p>
+    <h3 id="r-cup-rer-un-film-par-son-id">récupérer un film par son id</h3>
+    <p>GET /api/films/:id</p>
+    <h3 id="modifier-un-film-par-son-id">modifier un film par son id</h3>
+    <p>PUT /api/films/:id</p>
+    <h3 id="supprimer-un-film-par-son-id">supprimer un film par son id</h3>
+    <p>DELETE /api/films/:id</p>
+    <h3 id="cr-er-un-utilisateur">créer un utilisateur</h3>
+    <p>POST /api/utilisateurs/inscription -- vous pouvez utiliser le formulaire sur cette page</p>
+    <h3 id="connecter-un-utilisateur">connecter un utilisateur</h3>
+    <p>POST /api/utilisateurs/connexion -- vous pouvez utiliser le formulaire sur cette page</p>    
 </body>
 <script src="js/scripts.js"></script>
 </html>

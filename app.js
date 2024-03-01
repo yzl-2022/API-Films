@@ -29,6 +29,10 @@ app.use(express.urlencoded({extended: false})) //to read form data in express
 //Routers
 //==================================
 
+app.get('/', function(req, res){
+    res.render('index')
+})
+
 //films
 
 //if there is no data inside collection `films`, implant local data into collection `films`
@@ -49,7 +53,7 @@ app.get(['/films/initialiser','/api/films/initialiser'], async function(req, res
     }
 })
 
-app.get(['/','/films','/api/films'], async function(req, res){
+app.get(['/films','/api/films'], async function(req, res){
     try{
         //obtenir les paramètres dans l'URL s'il y a
         const tri = req.query['tri'] || 'id'
@@ -69,8 +73,8 @@ app.get(['/','/films','/api/films'], async function(req, res){
         })
         
         res.statusCode = 200
-        //res.json(films)
-        res.render('index', { films: films })
+        res.json(films)
+        //res.render('index', { films: films })
 
     }catch(err){
         console.log(err)
@@ -93,8 +97,8 @@ app.post(['/','/films','/api/films'],
                 const validation = validationResult(req)
                 if (validation.errors.length > 0) {
                     res.statusCode = 400
-                    //return res.json({message: "erreurs dans données envoyées"})
-                    return res.render('message', { message: "Erreurs dans données envoyées" })
+                    return res.json({message: "erreurs dans données envoyées"})
+                    //return res.render('message', { message: "Erreurs dans données envoyées" })
                 }
 
                 /** récupérer les valeurs envoyés par la methode POST
@@ -118,8 +122,8 @@ app.post(['/','/films','/api/films'],
 
                 if(filmExist.length > 0){
                     res.statusCode = 400      //invalid request
-                    //return res.json({message: "film déjà existe"})
-                    return res.render('message', { message: "Film déjà existe" })
+                    return res.json({message: "film déjà existe"})
+                    //return res.render('message', { message: "Film déjà existe" })
                 }
 
                 //enregistre dans la base de données
@@ -133,8 +137,8 @@ app.post(['/','/films','/api/films'],
 
                 //Le code http pour créer une ressource est 201
                 res.statusCode = 201
-                //res.json(newFilm)
-                res.render('message', { message: `Film « ${newFilm.titre} » est ajouté avec succès.`})
+                res.json(newFilm)
+                //res.render('message', { message: `Film « ${newFilm.titre} » est ajouté avec succès.`})
 
             }catch(err){
                 console.log(err)
@@ -152,15 +156,15 @@ app.get(['/films/:id','/api/films/:id'], async function(req, res){
         //si film n'existe pas
         if(!docRef.exists){
             res.statusCode = 400      //invalid request
-            //return res.json({message: "film non trouvé"})
-            return res.render('message', { message: "Film non trouvé" })
+            return res.json({message: "film non trouvé"})
+            //return res.render('message', { message: "Film non trouvé" })
         }
 
         //si fim existe
         const filmTrouve = docRef.data()
         res.statusCode = 200
-        //res.json(filmTrouve)
-        res.render('film', { film : filmTrouve })
+        res.json(filmTrouve)
+        //res.render('film', { film : filmTrouve })
 
     }catch(err){
         console.log(err)
@@ -246,8 +250,8 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
                 const validation = validationResult(req)
                 if (validation.errors.length > 0) {
                     res.statusCode = 400
-                    //return res.json({message: "erreurs dans données envoyées"})
-                    return res.render('message', { message: "Erreurs dans données envoyées" })
+                    return res.json({message: "erreurs dans données envoyées"})
+                    //return res.render('message', { message: "Erreurs dans données envoyées" })
                 }
 
                 /** récupérer les valeurs envoyés par la methode POST
@@ -267,8 +271,8 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
 
                 if(userExist.length > 0){
                     res.statusCode = 400      //invalid request
-                    //return res.json({message: "utilisateur déjà existe"})
-                    return res.render('message', { message: "Utilisateur déjà existe" })
+                    return res.json({message: "utilisateur déjà existe"})
+                    //return res.render('message', { message: "Utilisateur déjà existe" })
                 }
 
                 //enregistre dans la base de données
@@ -282,8 +286,8 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
                 //res.statusCode = 201
                 delete newUser.password    //effacer le mot de passe
                 res.statusCode = 201
-                //res.json(newUser)
-                res.render('message', { message: `Bonjour ${newUser.username}, votre compte est créé avec succès.`})
+                res.json(newUser)
+                //res.render('message', { message: `Bonjour ${newUser.username}, votre compte est créé avec succès.`})
 
             }catch(err){
                 console.log(err)
@@ -303,8 +307,8 @@ app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middle
                 const validation = validationResult(req)
                 if (validation.errors.length > 0) {
                     res.statusCode = 400
-                    //return res.json({message: "erreurs dans données envoyées"})
-                    return res.render('message', { message: "Erreurs dans données envoyées" })
+                    return res.json({message: "erreurs dans données envoyées"})
+                    //return res.render('message', { message: "Erreurs dans données envoyées" })
                 }
 
                 /** récupérer les valeurs envoyés par la methode POST
@@ -325,8 +329,8 @@ app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middle
                 //si utilisateur n'existe pas
                 if(userExist.length < 1){
                     res.statusCode = 400      //invalid request
-                    //return res.json({message: "utilisateur n'existe pas"})
-                    return res.render('message', { message: "Utilisateur n'existe pas" })
+                    return res.json({message: "utilisateur n'existe pas"})
+                    //return res.render('message', { message: "Utilisateur n'existe pas" })
                 }
 
                 //si utilisateur existe
@@ -334,15 +338,15 @@ app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middle
 
                 if(userValide.password !== password){
                     res.statusCode = 400
-                    //return res.json({message: "Mot de passe invalide"})
-                    return res.render('message', { message: "Mot de passe invalide" })
+                    return res.json({message: "Mot de passe invalide"})
+                    //return res.render('message', { message: "Mot de passe invalide" })
                 }
 
                 //si username & mdp sont bons
                 delete userValide.password
                 res.statusCode = 200
-                //res.json(userValide)
-                res.render('message', { message: `Bonjour ${userValide.username}, vous êtes connecté avec succès.`})
+                res.json(userValide)
+                //res.render('message', { message: `Bonjour ${userValide.username}, vous êtes connecté avec succès.`})
 
             }catch(err){
                 console.log(err)
