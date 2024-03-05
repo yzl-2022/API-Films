@@ -20,11 +20,15 @@ const db = require(path.join(__dirname, './config/db'))
 //validation de données
 const { check, validationResult } = require("express-validator")
 
+//cross-origin resource sharing (CORS)
+const cors = require('cors')
+
 //Middlewares -- add before routers
 //==================================
 app.use(express.static(path.join(__dirname, './public'))) //make available the folder /public
 app.use(express.json()) //to read json format data in express
 app.use(express.urlencoded({extended: false})) //to read form data in express
+app.use(cors()) //to allow external request
 
 //Routers
 //==================================
