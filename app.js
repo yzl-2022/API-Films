@@ -23,12 +23,40 @@ const { check, validationResult } = require("express-validator")
 //cross-origin resource sharing (CORS)
 const cors = require('cors')
 
+//authentification
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const { log } = require('console')
+
+//autorisation
+
 //Middlewares -- add before routers
 //==================================
 app.use(express.static(path.join(__dirname, './public'))) //make available the folder /public
 app.use(express.json()) //to read json format data in express
 app.use(express.urlencoded({extended: false})) //to read form data in express
 app.use(cors()) //to allow external request
+
+const auth = async function(req, res, next){
+    try {
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+            const token = req.headers.authorization.split(" ")[1];
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+            const docRef = await db.collection("user").doc(decodedToken.id).get();
+            if (!docRef.exists) {
+                throw "Non autorisé";
+            } else {
+                req.user = docRef.data();
+                next();
+            }
+        } else {
+            throw "Non autorisé";
+        }
+    } catch (error) {
+        res.statusCode = 403;
+        res.json({ message: "Non autorisé" });
+    }
+}
 
 //Routers
 //==================================
@@ -39,7 +67,8 @@ app.get('/', function(req, res){
 
 //films
 
-//if there is no data inside collection `films`, implant local data into collection `films`
+/** if there is no data inside collection `films`, implant local data into collection `films` */
+
 // app.get(['/films/initialiser','/api/films/initialiser'], async function(req, res){
 //     try{
 //         const donneesFilms = require(path.join(__dirname,'./data/filmsTest.js'))
@@ -86,7 +115,7 @@ app.get(['/films','/api/films'], async function(req, res){
     } 
 })
 
-app.post(['/','/films','/api/films'],
+app.post(['/','/films','/api/films'],auth,
         [
             check('titre').escape().trim().notEmpty(),
             check('genres').escape().trim().notEmpty().isArray(),
@@ -176,7 +205,7 @@ app.get(['/films/:id','/api/films/:id'], async function(req, res){
     }
 })
 
-app.put(['/films/:id','/api/films/:id'],
+app.put(['/films/:id','/api/films/:id'],auth,
         [
             check('titre').escape().trim().notEmpty(),
             check('genres').escape().trim().notEmpty().isArray(),
@@ -219,7 +248,7 @@ app.put(['/films/:id','/api/films/:id'],
             }  
         })
 
-app.delete(['/films/:id','/api/films/:id'], async function(req, res){
+app.delete(['/films/:id','/api/films/:id'],auth, async function(req, res){
     try{
         const id = req.params.id
 
@@ -243,7 +272,7 @@ app.delete(['/films/:id','/api/films/:id'], async function(req, res){
 
 //utilisateurs
 
-app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add middleware to validate request
+app.post(['/inscription','/utilisateurs/inscription','/api/utilisateurs/inscription'], //add middleware to validate request
         [
             check('username').escape().trim().notEmpty().isEmail().normalizeEmail(),
             check('password').escape().trim().notEmpty().isLength({min:8, max:20}).isStrongPassword({minLength:8, minLowercase:0, minNumbers:1, minUppercase:0, minSymbols:0})
@@ -265,6 +294,8 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
                  */ 
                 const { username, password } = req.body
 
+                console.log(req.body);
+
                 //vérifie le username dans la base de données
                 const docRef = await db.collection('user').where('username', '==', username).get()
                 const userExist = []
@@ -282,13 +313,15 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
                 //enregistre dans la base de données
                 const userRef = await db.collection('user').orderBy('id','desc').limit(1).get()
                 let id = 1           
-                if (!userRef.empty) id = userRef.doc[0].data().id + 1
+                if (!userRef.empty) id = userRef.docs[0].data().id + 1
 
-                const newUser = { username, password , "id":id }
+                const hash = await bcrypt.hash(password,10)
+                const newUser = { "username":username, "password":hash , "id":id }
                 await db.collection('user').doc(id.toString()).set(newUser)
 
                 //res.statusCode = 201
                 delete newUser.password    //effacer le mot de passe
+                newUser.token = genererToken(newUser.id)
                 res.statusCode = 201
                 res.json(newUser)
                 //res.render('message', { message: `Bonjour ${newUser.username}, votre compte est créé avec succès.`})
@@ -300,7 +333,7 @@ app.post(['/utilisateurs/inscription','/api/utilisateurs/inscription'], //add mi
         }
 )
 
-app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middleware to validate request
+app.post(['/connexion','/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middleware to validate request
         [
             check('username').escape().trim().notEmpty().isEmail().normalizeEmail(),
             check('password').escape().trim().notEmpty().isLength({min:8, max:20}).isStrongPassword({minLength:8, minLowercase:0, minNumbers:1, minUppercase:0, minSymbols:0})
@@ -339,8 +372,9 @@ app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middle
 
                 //si utilisateur existe
                 const userValide = userExist[0]
+                const resultatConnexion = await bcrypt.compare(password, userValide.password)
 
-                if(userValide.password !== password){
+                if(!resultatConnexion){
                     res.statusCode = 400
                     return res.json({message: "Mot de passe invalide"})
                     //return res.render('message', { message: "Mot de passe invalide" })
@@ -348,6 +382,7 @@ app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middle
 
                 //si username & mdp sont bons
                 delete userValide.password
+                userValide.token = genererToken(userValide.id)
                 res.statusCode = 200
                 res.json(userValide)
                 //res.render('message', { message: `Bonjour ${userValide.username}, vous êtes connecté avec succès.`})
@@ -358,6 +393,16 @@ app.post(['/utilisateurs/connexion','/api/utilisateurs/connexion'], //add middle
             }
         }
 )
+
+/**
+ * @function genererToken
+ * @description Cette fonction génère un token JWT pour un utilisateur spécifique. Le token est signé avec l'ID de l'utilisateur et une clé secrète, et il expire après 30 jours.
+ * @param {string} id - L'ID de l'utilisateur pour lequel générer le token.
+ * @returns {string} Le token JWT généré.
+ */
+const genererToken = function (id) {
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+};
 
 //middleware for error control -- no need for next() -- place after all routers
 //==================================
