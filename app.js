@@ -27,8 +27,6 @@ const cors = require('cors')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-//autorisation
-
 //Middlewares -- add before routers
 //==================================
 app.use(express.static(path.join(__dirname, './public'))) //make available the folder /public
@@ -85,7 +83,7 @@ app.get('/', function(req, res){
 //     }
 // })
 
-app.get(['/films','/api/films'],auth, async function(req, res){
+app.get(['/films','/api/films'], async function(req, res){
     try{
         //obtenir les paramètres dans l'URL s'il y a
         const tri = req.query['tri'] || 'id'
