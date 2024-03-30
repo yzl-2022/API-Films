@@ -26,7 +26,6 @@ const cors = require('cors')
 //authentification
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { log } = require('console')
 
 //autorisation
 
@@ -42,7 +41,7 @@ const auth = async function(req, res, next){
         if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
             const token = req.headers.authorization.split(" ")[1];
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-            const docRef = await db.collection("user").doc(decodedToken.id).get();
+            const docRef = await db.collection('user').doc(decodedToken.id.toString()).get();
             if (!docRef.exists) {
                 throw "Non autorisé";
             } else {
@@ -86,7 +85,7 @@ app.get('/', function(req, res){
 //     }
 // })
 
-app.get(['/films','/api/films'], async function(req, res){
+app.get(['/films','/api/films'],auth, async function(req, res){
     try{
         //obtenir les paramètres dans l'URL s'il y a
         const tri = req.query['tri'] || 'id'
@@ -284,7 +283,6 @@ app.post(['/inscription','/utilisateurs/inscription','/api/utilisateurs/inscript
                 if (validation.errors.length > 0) {
                     res.statusCode = 400
                     return res.json({message: "erreurs dans données envoyées"})
-                    //return res.render('message', { message: "Erreurs dans données envoyées" })
                 }
 
                 /** récupérer les valeurs envoyés par la methode POST
@@ -293,8 +291,6 @@ app.post(['/inscription','/utilisateurs/inscription','/api/utilisateurs/inscript
                  * {string} const password = req.body.password
                  */ 
                 const { username, password } = req.body
-
-                console.log(req.body);
 
                 //vérifie le username dans la base de données
                 const docRef = await db.collection('user').where('username', '==', username).get()
@@ -307,7 +303,6 @@ app.post(['/inscription','/utilisateurs/inscription','/api/utilisateurs/inscript
                 if(userExist.length > 0){
                     res.statusCode = 400      //invalid request
                     return res.json({message: "utilisateur déjà existe"})
-                    //return res.render('message', { message: "Utilisateur déjà existe" })
                 }
 
                 //enregistre dans la base de données
@@ -319,12 +314,10 @@ app.post(['/inscription','/utilisateurs/inscription','/api/utilisateurs/inscript
                 const newUser = { "username":username, "password":hash , "id":id }
                 await db.collection('user').doc(id.toString()).set(newUser)
 
-                //res.statusCode = 201
-                delete newUser.password    //effacer le mot de passe
-                newUser.token = genererToken(newUser.id)
+                //effacer le mot de passe avant de passer au front-end
+                delete newUser.password    
                 res.statusCode = 201
-                res.json(newUser)
-                //res.render('message', { message: `Bonjour ${newUser.username}, votre compte est créé avec succès.`})
+                res.json(genererToken(newUser))
 
             }catch(err){
                 console.log(err)
@@ -345,7 +338,6 @@ app.post(['/connexion','/utilisateurs/connexion','/api/utilisateurs/connexion'],
                 if (validation.errors.length > 0) {
                     res.statusCode = 400
                     return res.json({message: "erreurs dans données envoyées"})
-                    //return res.render('message', { message: "Erreurs dans données envoyées" })
                 }
 
                 /** récupérer les valeurs envoyés par la methode POST
@@ -367,7 +359,6 @@ app.post(['/connexion','/utilisateurs/connexion','/api/utilisateurs/connexion'],
                 if(userExist.length < 1){
                     res.statusCode = 400      //invalid request
                     return res.json({message: "utilisateur n'existe pas"})
-                    //return res.render('message', { message: "Utilisateur n'existe pas" })
                 }
 
                 //si utilisateur existe
@@ -377,16 +368,13 @@ app.post(['/connexion','/utilisateurs/connexion','/api/utilisateurs/connexion'],
                 if(!resultatConnexion){
                     res.statusCode = 400
                     return res.json({message: "Mot de passe invalide"})
-                    //return res.render('message', { message: "Mot de passe invalide" })
                 }
 
                 //si username & mdp sont bons
                 delete userValide.password
-                userValide.token = genererToken(userValide.id)
                 res.statusCode = 200
-                res.json(userValide)
-                //res.render('message', { message: `Bonjour ${userValide.username}, vous êtes connecté avec succès.`})
-
+                res.json(genererToken(userValide))
+                
             }catch(err){
                 console.log(err)
                 res.status(500).send(err)
@@ -397,11 +385,11 @@ app.post(['/connexion','/utilisateurs/connexion','/api/utilisateurs/connexion'],
 /**
  * @function genererToken
  * @description Cette fonction génère un token JWT pour un utilisateur spécifique. Le token est signé avec l'ID de l'utilisateur et une clé secrète, et il expire après 30 jours.
- * @param {string} id - L'ID de l'utilisateur pour lequel générer le token.
+ * @param {Object} user - {id:1, username:"123@123.com"}
  * @returns {string} Le token JWT généré.
  */
-const genererToken = function (id) {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+const genererToken = function (user) {
+    return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
 //middleware for error control -- no need for next() -- place after all routers
