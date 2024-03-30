@@ -85,7 +85,7 @@ app.get('/', function(req, res){
 //     }
 // })
 
-app.get(['/films','/api/films'],auth, async function(req, res){
+app.get(['/films','/api/films'], async function(req, res){
     try{
         //obtenir les paramètres dans l'URL s'il y a
         const tri = req.query['tri'] || 'id'
